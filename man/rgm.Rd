@@ -5,7 +5,7 @@
 \title{Estimation function of rGM}
 \usage{
 rgm(
-  env = Env2,
+  Xb = as.matrix(Env2[, -c(1, 2)]),
   sp = sp_pteridium_aquilinum,
   iter = 500,
   gamma = -0.5,
@@ -14,6 +14,8 @@ rgm(
 )
 }
 \arguments{
+\item{Xb}{data matrix of environmental variables. The default is the data matrix for Pteridium aquilinum.}
+
 \item{sp}{index vector for presence locations. The default is the index vector for Pteridium aquilinum.}
 
 \item{iter}{maximum number of iterations.}
@@ -23,8 +25,6 @@ rgm(
 \item{tau}{penalty term. A numeric value or "default" indicating that used for the linear feature in Maxent.}
 
 \item{mul}{multiplier applied to tau when "default" is used.}
-
-\item{Xb}{data matrix of environmental variables. The default is the data matrix for Pteridium aquilinum.}
 }
 \value{
 estimated coefficients and the number of iterations.
@@ -40,5 +40,5 @@ rgm()
 Phillips, S. J., & DudíLk, M. (2008). Modeling of species distributions with Maxent: new extensions and a comprehensive evaluation. Ecography, 31, 161-175.
 }
 \seealso{
-\code{\link{maxent}}, \code{\link{gm}}, \code{\link{gamma0}}, \code{\link{fisher0}}
+\code{\link{maxent}}, \code{\link{gm}}, \code{\link{fisher0}}
 }

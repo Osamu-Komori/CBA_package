@@ -4,7 +4,14 @@
 \alias{est.nceas}
 \title{Generate the estimation results about NCEAS data analysis by Maxent, GM, rGM and Fisher}
 \usage{
-est.nceas(Xb = nsw14.tr, Xb.te = nsw14.te)
+est.nceas(
+  Xb = nsw14.tr,
+  Xb.pa = nsw14.te,
+  gamma.default = -10^{
+     -5
+ },
+  gamma.default2 = -0.5
+)
 }
 \arguments{
 \item{Xb}{training data matrix}

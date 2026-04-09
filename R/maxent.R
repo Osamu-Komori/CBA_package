@@ -8,7 +8,7 @@
 #' @param tau penalty term. A numeric value or "default" indicating that used for the linear feature in Maxent.
 #' @references Phillips, S. J., & Dudík, M. (2008). Modeling of species distributions with Maxent: new extensions and a comprehensive evaluation. Ecography, 31, 161-175.
 #' @return estimated coefficients and the number of iterations.
-#' @seealso \code{\link{rgm}}, \code{\link{gm}}, \code{\link{gamma0}}, \code{\link{fisher0}}
+#' @seealso \code{\link{rgm}}, \code{\link{gm}}, \code{\link{fisher0}}
 
 #' @examples
 #' # Example usage
@@ -17,8 +17,8 @@
 
 
 #' @export
-maxent <-function(env=Env2,sp=sp_pteridium_aquilinum,iter=500,tau="default"){
-   Xb=as.matrix(env[,-c(1,2)])
+maxent <-function(Xb=as.matrix(Env2[,-c(1,2)]),sp=sp_pteridium_aquilinum,iter=500,tau="default"){
+   
    m=length(sp)
    n=dim(Xb)[2]
 
@@ -84,7 +84,7 @@ maxent <-function(env=Env2,sp=sp_pteridium_aquilinum,iter=500,tau="default"){
     
     if(i>1){
       relative=(Loss[i-1]-Loss[i])/(1+abs(Loss[i]))
-     if(relative<10^(-20)|Loss[i]>=Loss[i-1])
+     if(relative<10^(-10)|Loss[i]>=Loss[i-1])
        break
     }
    

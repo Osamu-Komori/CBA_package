@@ -4,16 +4,21 @@
 \alias{maxent}
 \title{Estimation function of Maxent}
 \usage{
-maxent(env = Env2, sp = sp_pteridium_aquilinum, iter = 500, tau = "default")
+maxent(
+  Xb = as.matrix(Env2[, -c(1, 2)]),
+  sp = sp_pteridium_aquilinum,
+  iter = 500,
+  tau = "default"
+)
 }
 \arguments{
+\item{Xb}{data matrix of environmental variables. The default is the data matrix for Pteridium aquilinum.}
+
 \item{sp}{index vector for presence locations. The default is the index vector for Pteridium aquilinum.}
 
 \item{iter}{maximum number of iterations.}
 
 \item{tau}{penalty term. A numeric value or "default" indicating that used for the linear feature in Maxent.}
-
-\item{Xb}{data matrix of environmental variables. The default is the data matrix for Pteridium aquilinum.}
 }
 \value{
 estimated coefficients and the number of iterations.
@@ -29,5 +34,5 @@ maxent()
 Phillips, S. J., & Dudík, M. (2008). Modeling of species distributions with Maxent: new extensions and a comprehensive evaluation. Ecography, 31, 161-175.
 }
 \seealso{
-\code{\link{rgm}}, \code{\link{gm}}, \code{\link{gamma0}}, \code{\link{fisher0}}
+\code{\link{rgm}}, \code{\link{gm}}, \code{\link{fisher0}}
 }

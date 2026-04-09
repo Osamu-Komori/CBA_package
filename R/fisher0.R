@@ -14,7 +14,7 @@
 
 #' @return estimated coefficients \eqn{\lambda} and number of iteration
 
-#' @seealso \code{\link{maxent}}, \code{\link{rgm}}, \code{\link{gm}}, \code{\link{gamma0}}
+#' @seealso \code{\link{maxent}}, \code{\link{rgm}}, \code{\link{gm}}
 
 #' @examples
 #' # Example usage

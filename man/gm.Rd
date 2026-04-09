@@ -5,7 +5,7 @@
 \title{Estimation function of GM}
 \usage{
 gm(
-  env = Env2,
+  Xb = as.matrix(Env2[, -c(1, 2)]),
   sp = sp_pteridium_aquilinum,
   iter = 500,
   tau = "default",
@@ -14,6 +14,8 @@ gm(
 )
 }
 \arguments{
+\item{Xb}{data matrix of environmental variables. The default is the data matrix for Pteridium aquilinum.}
+
 \item{sp}{index vector for presence locations. The default is the index vector for Pteridium aquilinum.}
 
 \item{iter}{maximum number of iterations.}
@@ -21,8 +23,6 @@ gm(
 \item{tau}{penalty term. A numeric value or "default" indicating that used for the linear feature in Maxent.}
 
 \item{mul}{multiplier applied to tau when "default" is used.}
-
-\item{Xb}{data matrix of environmental variables. The default is the data matrix for Pteridium aquilinum.}
 }
 \value{
 estimated coefficients and the number of iterations.
@@ -38,5 +38,5 @@ gm()
 Phillips, S. J., & DudíLLk, M. (2008). Modeling of species distributions with Maxent: new extensions and a comprehensive evaluation. Ecography, 31, 161-175.
 }
 \seealso{
-\code{\link{maxent}}, \code{\link{rgm}}, \code{\link{gamma0}}, \code{\link{fisher0}}
+\code{\link{maxent}}, \code{\link{rgm}}, \code{\link{fisher0}}
 }

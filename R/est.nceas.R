@@ -15,12 +15,11 @@
 
 
 #' @export
-est.nceas <-function (Xb=nsw14.tr,Xb.te=nsw14.te){
-
+est.nceas <-function (Xb=nsw14.tr,Xb.pa=nsw14.te,gamma.default=-10^{-5},gamma.default2=-0.5){
 
 library(MASS)
 library(microbenchmark)
-
+library(nortest)
 
 
 
@@ -38,7 +37,7 @@ library(microbenchmark)
  
 
 
-
+pi_m=m/N
 
 
 
@@ -46,7 +45,7 @@ library(microbenchmark)
     
      
         y=is.element(1:N,sp)
-        y.pa=(Xb.te$occ==1)
+        y.pa=(Xb.pa$occ==1)
 
 
       
@@ -54,7 +53,7 @@ library(microbenchmark)
 
 Xb=as.matrix(Xb[,-1])
 Xb.p=as.matrix(Xb.p[,-1])
-Xb.te=as.matrix(Xb.te[,-1])
+Xb.pa=as.matrix(Xb.pa[,-1])
 
         fbar=apply(Xb,2,mean)
         fm=apply(Xb.p,2,mean)
@@ -63,20 +62,90 @@ S=var(Xb)
 Sm=var(Xb.p)
 vari=colnames(Xb)
 
+        
 
-maxent.loss=function(beta){
+gm=function(beta){
+
+               
+		
+                lam=exp(-Xb.p%*%beta+as.numeric(fbar%*%beta))
+               
+                return(sum(lam))
+                
+	}
+gm.gr=function(beta){
+
+     lamd=-as.numeric(exp(-Xb.p%*%beta+as.numeric(fbar%*%beta)))*t(t(Xb.p)-fbar)
+     return(apply(lamd,2,sum))
+}
+
+pgm=function(beta){
+
+                
+		
+                lam=exp(-Xb.p%*%beta+as.numeric(fbar%*%beta)+1/2*as.numeric(t(beta)%*%S%*%beta))
+                
+                return(sum(lam))
+                
+	}
+pgm.gr=function(beta){
+
+     lamd=as.numeric(exp(-Xb.p%*%beta+as.numeric(fbar%*%beta)))*( -t(t(Xb.p)-fbar-as.numeric(S%*%beta)))
+     return(apply(lamd,2,sum))
+}
+
+
+
+gamma_linear=function(beta,gamma=gamma.default){
+
+          
+		
+                lam=exp(gamma*(Xb.p%*%beta+as.numeric(fbar%*%beta)))
+                
+                return(sum(lam))
+                
+	}
+gamma_linear.gr=function(beta,gamma=gamma.default){
+
+     lamd=as.numeric(gamma*(exp(-Xb.p%*%beta+as.numeric(fbar%*%beta))))*t(t(Xb.p)-fbar)
+     return(apply(lamd,2,sum))
+}
+
+
+ppp=function(beta){
+          
+                A=-sum(Xb1[sp,]%*%beta)+mean(exp(Xb1%*%beta))
+                return(A)
+	}
+
+ppp.gr=function(beta){
+                A=-apply(Xb1[sp,],2,sum)+apply(as.numeric(exp(Xb1%*%beta))*Xb1,2,mean)
+                return(A)
+	}
+
+maxent=function(beta){
                
                 A=-mean(Xb.p%*%beta)+log(sum(exp(Xb%*%beta)))
                 return(A)
 	}
 
-maxent.loss.gr=function(beta){
+maxent.gr=function(beta){
                 
                 A=-apply(Xb.p,2,mean)+apply(as.numeric(exp(Xb%*%beta))*Xb,2,sum)/sum(exp(Xb%*%beta))
                 return(A)
 	}
 
-gamma.loss=function(beta,gamma){
+gamma0=function(beta){
+                lam=exp(Xb.p%*%beta)
+                A=-sum(log(lam))+m*log(mean(exp(Xb%*%beta)))
+                return(A)
+	}
+gamma0.gr=function(beta){
+                A=-apply(Xb.p,2,sum)+m/mean(exp(Xb%*%beta))*apply(as.numeric(exp(Xb%*%beta))*Xb,2,mean)
+                return(A)
+	}
+
+gamma=function(beta,gamma=gamma.default){
 
                 
                 A=sum(exp(gamma*Xb.p%*%beta))/(mean(exp((gamma+1)*Xb%*%beta)))^(gamma/(gamma+1))
@@ -86,7 +155,7 @@ gamma.loss=function(beta,gamma){
                    
 	}
 
-gamma.loss.gr=function(beta,gamma){
+gamma.gr=function(beta,gamma=gamma.default){
 
                 
                 A1=gamma*apply(as.numeric(exp(gamma*Xb.p%*%beta))*Xb.p,2,sum)/(mean(exp((gamma+1)*Xb%*%beta)))^(gamma/(gamma+1))
@@ -98,7 +167,7 @@ gamma.loss.gr=function(beta,gamma){
 	}
 
 
-rgm.loss=function(beta,gamma){
+approx=function(beta,gamma=gamma.default){
 
                 
                 A=sum(exp(gamma*t(t(Xb.p)-fbar)%*%beta-1/2*gamma*(gamma+1)*as.numeric(t(beta)%*%S%*%beta)   ))
@@ -107,7 +176,7 @@ rgm.loss=function(beta,gamma){
                
                    
 	}
-rgm.loss.gr=function(beta,gamma){
+approx.gr=function(beta,gamma=gamma.default){
 
                 
                 A=apply(as.numeric(exp(gamma*t(t(Xb.p)-fbar)%*%beta-1/2*gamma*(gamma+1)*as.numeric(t(beta)%*%S%*%beta))   )*(gamma*t(t(Xb.p)-fbar-(gamma+1)*as.numeric(S%*%beta))),2,sum)
@@ -116,30 +185,20 @@ rgm.loss.gr=function(beta,gamma){
                
                    
 	}
-        
 
-gm.loss=function(beta){
-
-               
-		
-                lam=exp(-Xb.p%*%beta+as.numeric(fbar%*%beta))
-                
-                return(sum(lam))
-                
-	}
-gm.loss.gr=function(beta){
-
-     lamd=-as.numeric(exp(-Xb.p%*%beta+as.numeric(fbar%*%beta)))*t(t(Xb.p)-fbar)
-     return(apply(lamd,2,sum))
-}
+ if(gamma.default>0)
+            fnscale=-1
+        else
+            fnscale=1
 
 
 
-
-
-ptm<- microbenchmark({   A=optim(par=rep(0,n),fn=maxent.loss,gr=maxent.loss.gr, method = "BFGS") },times = 1 )
+ptm<- microbenchmark({   A=optim(par=rep(0,n),fn=maxent,gr=maxent.gr, method = "BFGS") },times = 1 )
 
        time.maxent=ptm$time
+
+       
+
 
         par.maxent=A$par
         score=Xb%*%par.maxent
@@ -147,73 +206,48 @@ ptm<- microbenchmark({   A=optim(par=rep(0,n),fn=maxent.loss,gr=maxent.loss.gr, 
 
 
 
-        score.t=Xb.te%*%par.maxent
+        score.t=Xb.pa%*%par.maxent
 
         AUCt.maxent=auc(score.t,y.pa)
         count.maxent=A$count[2]
 
        
-      
+        p.value.maxent=lillie.test(score)$p.value
 
 
  
-
-         ptm<- microbenchmark({  A=optim(par=rep(0,n),fn=gamma.loss,gr=gamma.loss.gr, method = "BFGS",gamma=-10^(-5)) },times = 1 )
-       time.gamma=ptm$time
-
-        
-
-
-        par.gamma=A$par
-        score=Xb%*%par.gamma
-        AUC.gamma=auc(score,y)
-         score.t=Xb.te%*%par.gamma
-        AUCt.gamma=auc(score.t,y.pa)
-         count.gamma=A$count[2]
-        
-        
-
-        ptm<- microbenchmark({ A=optim(par=rep(0,n),fn=rgm.loss,gr=rgm.loss.gr, method = "BFGS",gamma=-10^(-5))  },times = 1 )
-       time.rgm.loss=ptm$time
-
-        
-        par.rgm.loss=A$par
-        score=Xb%*%par.rgm.loss
-        AUC.rgm.loss=auc(score,y)
-         score.t=Xb.te%*%par.rgm.loss
-        AUCt.rgm.loss=auc(score.t,y.pa)
-         count.rgm.loss=A$count[2]
-       
-        
-
- ptm<- microbenchmark({ A=optim(par=rep(0,n),fn=rgm.loss,gr=rgm.loss.gr, method = "BFGS",gamma=-0.5)  },times = 1 )
-       time.rgm.loss_neghalf=ptm$time
-
-        
-        par.rgm.loss_neghalf=A$par
-        score=Xb%*%par.rgm.loss_neghalf
-        AUC.rgm.loss_neghalf=auc(score,y)
-          score.t=Xb.te%*%par.rgm.loss_neghalf
-        AUCt.rgm.loss_neghalf=auc(score.t,y.pa)
-         count.rgm.loss_neghalf=A$count[2]
-      
          
+        
+
+
+ ptm<- microbenchmark({ A=optim(par=rep(0,n),fn=approx,gr=approx.gr, method = "BFGS",gamma=gamma.default2,control = list(fnscale=fnscale))  },times = 1 )
+       time.approx_neghalf=ptm$time
+
+        
+        par.approx_neghalf=A$par
+        score=Xb%*%par.approx_neghalf
+        AUC.approx_neghalf=auc(score,y)
+          score.t=Xb.pa%*%par.approx_neghalf
+        AUCt.approx_neghalf=auc(score.t,y.pa)
+         count.approx_neghalf=A$count[2]
+      
+         p.value.approx_neghalf=lillie.test(score)$p.value
 
 
  
-        ptm<- microbenchmark({ A=optim(par=rep(0,n),fn=gm.loss,gr=gm.loss.gr, method = "BFGS")},times = 1 )
+        ptm<- microbenchmark({ A=optim(par=rep(0,n),fn=gm,gr=gm.gr, method = "BFGS")},times = 1 )
        time.gm=ptm$time
        
 
         par.gm=A$par
         score=Xb%*%par.gm
         AUC.gm=auc(score,y)
-         score.t=Xb.te%*%par.gm
+         score.t=Xb.pa%*%par.gm
         AUCt.gm=auc(score.t,y.pa)
         count.gm=A$count[2]
       
 
- 
+       p.value.gm=lillie.test(score)$p.value
        
 
 
@@ -225,39 +259,50 @@ ptm<- microbenchmark({   A=optim(par=rep(0,n),fn=maxent.loss,gr=maxent.loss.gr, 
 
         score=Xb%*%par.fisher
         AUC.fisher=auc(score,y)
-         score.t=Xb.te%*%par.fisher
+         score.t=Xb.pa%*%par.fisher
         AUCt.fisher=auc(score.t,y.pa)
          count.fisher=1
      
 
-      
+      p.value.fisher=lillie.test(score)$p.value
 
      
-      
+      ptm<- microbenchmark({ par.fisher_m=ginv(S+pi_m*Sm)%*%(fm-fbar)},times = 1 )
+       time.fisher_m=ptm$time
+
+        score=Xb%*%par.fisher_m
+        AUC.fisher_m=auc(score,y)
+         score.t=Xb.pa%*%par.fisher_m
+        AUCt.fisher_m=auc(score.t,y.pa)
+         count.fisher_m=1
+     
+
+      p.value.fisher_m=lillie.test(score)$p.value
 
 
        
       time.maxent=time.maxent/time.fisher
-      time.gamma=time.gamma/time.fisher
+      
       time.gm=time.gm/time.fisher
-      time.rgm.loss=time.rgm.loss/time.fisher
-      time.rgm.loss_neghalf=time.rgm.loss_neghalf/time.fisher
      
+      time.approx_neghalf=time.approx_neghalf/time.fisher
+      time.fisher_m=time.fisher_m/time.fisher
       time.fisher=1
       
 
 
-A=c(m,N,AUC.maxent,AUCt.maxent,time.maxent,count.maxent,par.maxent)
+A=c(m,N,AUC.maxent,AUCt.maxent,time.maxent,count.maxent,p.value.maxent,par.maxent)
 
     
-names(A)=c("m","n","AUC","AUCt","time","iter",vari)
-A=rbind(A,c(m,N,AUC.gamma,AUCt.gamma,time.gamma,count.gamma,par.gamma))
-A=rbind(A,c(m,N,AUC.gm,AUCt.gm,time.gm,count.gm,par.gm))
-A=rbind(A,c(m,N,AUC.rgm.loss,AUCt.rgm.loss,time.rgm.loss,count.rgm.loss,par.rgm.loss))
-A=rbind(A,c(m,N,AUC.rgm.loss_neghalf,AUCt.rgm.loss_neghalf,time.rgm.loss_neghalf,count.rgm.loss_neghalf,par.rgm.loss_neghalf))
-A=rbind(A,c(m,N,AUC.fisher,AUCt.fisher,time.fisher,count.fisher,par.fisher))
+names(A)=c("m","n","AUC","AUCt","time","iter","p.value",vari)
+
+A=rbind(A,c(m,N,AUC.gm,AUCt.gm,time.gm,count.gm,p.value.gm,par.gm))
+
+A=rbind(A,c(m,N,AUC.approx_neghalf,AUCt.approx_neghalf,time.approx_neghalf,count.approx_neghalf,p.value.approx_neghalf,par.approx_neghalf))
+A=rbind(A,c(m,N,AUC.fisher,AUCt.fisher,time.fisher,count.fisher,p.value.fisher,par.fisher))
+
 A=data.frame(A)
-method=c("Maxent","Gamma","GM","qGM","qGM_neghalf","Fisher")
+method=c("Maxent","GM","rGM","Fisher")
 
 A=data.frame(cbind(method,A))
 

@@ -7,9 +7,9 @@
 sim(
   n.iter = 100,
   rho = 0.5,
-  p = 50,
+  p = 10,
   alpha0 = seq(0, 0.1, length.out = p),
-  type = "poisson"
+  type = "gaussian"
 )
 }
 \arguments{

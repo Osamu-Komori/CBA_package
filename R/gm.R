@@ -9,15 +9,15 @@
 #' @param mul multiplier applied to tau when "default" is used.
 #' @references Phillips, S. J., & DudíLLk, M. (2008). Modeling of species distributions with Maxent: new extensions and a comprehensive evaluation. Ecography, 31, 161-175.
 #' @return estimated coefficients and the number of iterations.
-#' @seealso \code{\link{maxent}}, \code{\link{rgm}}, \code{\link{gamma0}}, \code{\link{fisher0}}
+#' @seealso \code{\link{maxent}}, \code{\link{rgm}}, \code{\link{fisher0}}
 
 #' @examples
 #' # Example usage
 #' gm()
 
 #' @export
-gm <-function(env=Env2,sp=sp_pteridium_aquilinum,iter=500,tau="default",mul=0.1,gamma=-1){
-   Xb=as.matrix(env[,-c(1,2)])
+gm <-function(Xb=as.matrix(Env2[,-c(1,2)]),sp=sp_pteridium_aquilinum,iter=500,tau="default",mul=0.1,gamma=-1){
+   
   y=is.element(1:dim(Xb)[1],sp)
   Xb.p=Xb[sp,]
   m=dim(Xb.p)[1]
@@ -86,7 +86,7 @@ gm <-function(env=Env2,sp=sp_pteridium_aquilinum,iter=500,tau="default",mul=0.1,
     
     if(i>1){
        relative=(Loss[i-1]-Loss[i])/(1+abs(Loss[i]))
-       if(relative<10^(-20)|Loss[i]>=Loss[i-1])
+       if(relative<10^(-10)|Loss[i]>=Loss[i-1])
          break
      }
   }

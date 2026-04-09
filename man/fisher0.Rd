@@ -37,5 +37,5 @@ fisher0()
 Phillips, S. J., & Dudík, M. (2008). Modeling of species distributions with Maxent: new extensions and a comprehensive evaluation. Ecography, 31, 161-175.
 }
 \seealso{
-\code{\link{maxent}}, \code{\link{rgm}}, \code{\link{gm}}, \code{\link{gamma0}}
+\code{\link{maxent}}, \code{\link{rgm}}, \code{\link{gm}}
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/est.sim.R
 \name{est.sim}
 \alias{est.sim}
-\title{Generate the estimation results about simulation analysis by Maxent, GM, rGM and Fisher}
+\title{Generate the estimation results about simulation analysis by Maxent, GM, rGM and Fisher by the Broyden-Fletcher-Goldfarb-Shanno (BFGS) algorithm}
 \usage{
 est.sim(
   rho = 0.5,
@@ -14,12 +14,16 @@ est.sim(
 )
 }
 \arguments{
-\item{Xb}{training data matrix}
+\item{rho}{a parameter in correlation matrix}
 
-\item{Xb.te}{test data matrix}
+\item{m}{presence sample size}
+
+\item{p}{sample size}
+
+\item{alpha0}{parameter to be estimated in log-linear model}
 }
 \value{
-boxplots of test AUC and computational costs by Maxent, GM, rGM and Fisher
+the values of test AUC and computational costs by Maxent, GM, rGM and Fisher
 }
 \description{
 \code{est.sim} returns the results of simulation analysis by Maxent, GM, rGM and Fisher

@@ -1,6 +1,6 @@
 Package: CBA
 Title: What the Package Does (One Line, Title Case)
-Version: 0.0.0.9000
+Version: 1.0.0.9000
 Authors@R: 
     person("First", "Last", , "first.last@example.com", role = c("aut", "cre"),
            comment = c(ORCID = "YOUR-ORCID-ID"))
@@ -8,16 +8,12 @@ Description: What the package does (one paragraph).
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.1
-Depends: 
-    R (>= 2.10)
+RoxygenNote: 7.3.2
+Depends: R (>= 2.10)
 LazyData: true
-Imports: 
-    disdat,
-    dplyr,
-    ggplot2,
-    gridExtra,
-    MASS,
-    microbenchmark,
-    nortest,
-    reshape2
+Imports: disdat, dplyr, ggplot2, gridExtra, MASS, microbenchmark,
+        nortest, reshape2
+NeedsCompilation: no
+Packaged: 2026-04-09 21:24:02 UTC; datascience
+Author: First Last [aut, cre] (YOUR-ORCID-ID)
+Maintainer: First Last <first.last@example.com>

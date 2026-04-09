@@ -4,7 +4,7 @@
 \alias{nceas}
 \title{NCEAS data analysis by Maxent, GM, rGM and Fisher}
 \usage{
-nceas(region = "AWT")
+nceas(region = "NZ")
 }
 \arguments{
 \item{region}{name of region in NCEAS data ("AWT","CAN","NSW","NZ","SA","SWI"). The default is "AWT"}
